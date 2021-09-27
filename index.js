@@ -14,6 +14,18 @@ app.use(
   morgan(':method :url :status :res[content-length] - :response-time ms :body')
 )
 
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  }
+
+  next(error)
+}
+
+app.use(errorHandler)
+
 const date = new Date()
 
 app.get('/info', (request, response) => {
