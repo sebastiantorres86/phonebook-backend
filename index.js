@@ -30,7 +30,7 @@ const date = new Date()
 
 app.get('/info', (request, response) => {
   response.send(`
-  <p>Phonebook has info for ${persons.length} people</p>
+  <p>Phonebook has info for ${Person.length} people</p>
   <p>${date}</p>
   `)
 })
@@ -55,10 +55,6 @@ app.delete('/api/persons/:id', (request, response, next) => {
     .catch(error => next(error))
 })
 
-const generateId = () => {
-  return Math.floor(Math.random() * 1000)
-}
-
 app.post('/api/persons', (request, response) => {
   const body = request.body
 
@@ -74,6 +70,27 @@ app.post('/api/persons', (request, response) => {
   person.save().then(savedPerson => {
     response.json(savedPerson)
   })
+})
+
+app.put('/api/persons/:id', (request, response, next) => {
+  const body = request.body
+
+  if (!body.name || !body.number) {
+    throw new errorHandler(400, ['Missing name and/or number fields'])
+  }
+
+  const person = {
+    name: body.name,
+    number: body.number
+  }
+
+  Person.findByIdAndUpdate(request.params.id, person, {
+    new: true
+  })
+    .then(updatedPerson => {
+      response.json(updatedPerson)
+    })
+    .catch(error => next(error))
 })
 
 const PORT = process.env.PORT
